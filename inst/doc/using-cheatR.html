@@ -12,34 +12,66 @@
 
 <meta name="author" content="Mattan S. Ben-Shachar" />
 
-<meta name="date" content="2020-05-04" />
+<meta name="date" content="2022-04-11" />
 
 <title>Using cheatR</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +80,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -104,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
+
 
 
 
@@ -301,55 +334,66 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Using <code>cheatR</code></h1>
 <h4 class="author">Mattan S. Ben-Shachar</h4>
-<h4 class="date">2020-05-04</h4>
+<h4 class="date">2022-04-11</h4>
 
 
 
 <div id="scripting" class="section level3">
 <h3>Scripting</h3>
 <p>Create a list of files:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">my_files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&#39;../man/files/&#39;</span>, <span class="dt">pattern =</span> <span class="st">&#39;.doc&#39;</span>, <span class="dt">full.names =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-2" title="2">my_files</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">#&gt; [1] &quot;../man/files/paper1_copy1.docx&quot; &quot;../man/files/paper1_copy2.docx&quot;</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co">#&gt; [3] &quot;../man/files/paper1_copy3.docx&quot; &quot;../man/files/paper2_copy1.docx&quot;</span></a></code></pre></div>
-<p>The first 3 documents are different drafts of the same paper, so we would expect them to be similar to each other. The last document is a draft of a different paper, so it should be dissimilar to the first 3. <strong>All files are about 45K words long.</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>my_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">&#39;../man/files/&#39;</span>, <span class="at">pattern =</span> <span class="st">&#39;.doc&#39;</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>my_files</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;../man/files/paper1_copy1.docx&quot; &quot;../man/files/paper1_copy2.docx&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3] &quot;../man/files/paper1_copy3.docx&quot; &quot;../man/files/paper2_copy1.docx&quot;</span></span></code></pre></div>
+<p>The first 3 documents are different drafts of the same paper, so we
+would expect them to be similar to each other. The last document is a
+draft of a different paper, so it should be dissimilar to the first 3.
+<strong>All files are about 45K words long.</strong></p>
 <p>Now we can use <code>cheatR</code> to find duplicates.</p>
-<p>The only function, <code>catch_em</code>, takes the following input arguments:</p>
+<p>The only function, <code>catch_em</code>, takes the following input
+arguments:</p>
 <ul>
-<li><code>flist</code> - a list of documents (<code>.doc</code>/<code>.docx</code>/<code>.pdf</code>). A full/relative path must be provided.</li>
-<li><code>n_grams</code> - see <a href="https://github.com/wrathematics/ngram"><code>ngram</code> package</a>.</li>
-<li><code>time_lim</code> - max time in seconds for each comparison (we found that some corrupt files run forever and crash R, so a time limit might be needed).</li>
+<li><code>flist</code> - a list of documents
+(<code>.doc</code>/<code>.docx</code>/<code>.pdf</code>). A
+full/relative path must be provided.</li>
+<li><code>n_grams</code> - see <a href="https://github.com/wrathematics/ngram"><code>ngram</code>
+package</a>.</li>
+<li><code>time_lim</code> - max time in seconds for each comparison (we
+found that some corrupt files run forever and crash R, so a time limit
+might be needed).</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">library</span>(cheatR)</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="co">#&gt; Catch &#39;em cheaters!</span></a>
-<a class="sourceLine" id="cb2-3" title="3">results &lt;-<span class="st"> </span><span class="kw">catch_em</span>(<span class="dt">flist =</span> my_files,</a>
-<a class="sourceLine" id="cb2-4" title="4">                    <span class="dt">n_grams =</span> <span class="dv">10</span>, <span class="dt">time_lim =</span> <span class="dv">1</span>) <span class="co"># defaults</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="co">#&gt; Reading documents...</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="co">#&gt;  Done!</span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co">#&gt; Looking for cheaters...</span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co">#&gt; ================================================================================</span></a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt; Busted!</span></a></code></pre></div>
-<p>The resulting list contains a matrix with the similarity values between each pair of documents:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">results</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt;                   paper1_copy1.docx paper1_copy2.docx paper1_copy3.docx</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt; paper1_copy1.docx              100%                                    </span></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt; paper1_copy2.docx               87%              100%                  </span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; paper1_copy3.docx               90%               88%              100%</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt; paper2_copy1.docx                0%                0%                0%</span></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt;                   paper2_copy1.docx</span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; paper1_copy1.docx                  </span></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; paper1_copy2.docx                  </span></a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; paper1_copy3.docx                  </span></a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt; paper2_copy1.docx              100%</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt; All files read successfully.</span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt; All files compared successfully.</span></a></code></pre></div>
-<p>You can also plot the relational graph if you’d like to get a more clear picture of who copied from who.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">plot</span>(results, <span class="dt">weight_range =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="dv">1</span>), <span class="dt">remove_lonely =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt; Loading required namespace: tidygraph</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt; Loading required namespace: ggraph</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt; Using `stress` as default layout</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cheatR)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Catch &#39;em cheaters!</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">catch_em</span>(<span class="at">flist =</span> my_files,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">n_grams =</span> <span class="dv">10</span>, <span class="at">time_lim =</span> <span class="dv">1</span>) <span class="co"># defaults</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Reading documents...</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Done!</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Looking for cheaters...</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ================================================================================</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Busted!</span></span></code></pre></div>
+<p>The resulting list contains a matrix with the similarity values
+between each pair of documents:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>results</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   paper1_copy1.docx paper1_copy2.docx paper1_copy3.docx</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy1.docx              100%                                    </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy2.docx               87%              100%                  </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy3.docx               90%               88%              100%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper2_copy1.docx                0%                0%                0%</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   paper2_copy1.docx</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy1.docx                  </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy2.docx                  </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper1_copy3.docx                  </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; paper2_copy1.docx              100%</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; All files read successfully.</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; All files compared successfully.</span></span></code></pre></div>
+<p>You can also plot the relational graph if you’d like to get a more
+clear picture of who copied from who.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(results, <span class="at">weight_range =</span> <span class="fu">c</span>(<span class="fl">0.7</span>, <span class="dv">1</span>), <span class="at">remove_lonely =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required namespace: tidygraph</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required namespace: ggraph</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Using `stress` as default layout</span></span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 
